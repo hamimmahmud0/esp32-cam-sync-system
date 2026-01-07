@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dual ESP32-CAM Control</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <h1><i class="fas fa-camera"></i> Dual ESP32-CAM System</h1>
+            <div class="status-bar">
+                <span id="system-status" class="status status-ok">
+                    <i class="fas fa-circle"></i> System Ready
+                </span>
+                <span id="camera-status" class="status status-warning">
+                    <i class="fas fa-circle"></i> Camera Initializing
+                </span>
+                <span id="slave-status" class="status status-error">
+                    <i class="fas fa-circle"></i> Slave Disconnected
+                </span>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Left Panel - Quick Controls -->
+            <div class="left-panel">
+                <div class="card">
+                    <h2><i class="fas fa-bolt"></i> Quick Capture</h2>
+                    <div class="button-group">
+                        <button id="capture-single" class="btn btn-primary">
+                            <i class="fas fa-camera"></i> Single Capture
+                        </button>
+                        <button id="capture-burst" class="btn btn-secondary">
+                            <i class="fas fa-images"></i> Burst (10)
+                        </button>
+                        <button id="capture-video" class="btn btn-secondary">
+                            <i class="fas fa-video"></i> Video (10s)
+                        </button>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="capture-mode">Capture Mode</label>
+                        <select id="capture-mode" class="form-control">
+                            <option value="raw">RAW (High Speed)</option>
+                            <option value="jpeg">JPEG (Compressed)</option>
+                            <option value="yuv">YUV</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2><i class="fas fa-sliders-h"></i> Quick Settings</h2>
+                    
+                    <div class="form-group">
+                        <label for="resolution">Resolution</label>
+                        <select id="resolution" class="form-control">
+                            <option value="uxga">UXGA (1600x1200)</option>
+                            <option value="svga">SVGA (800x600)</option>
+                            <option value="cif">CIF (400x296)</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="frame-rate">Frame Rate: <span id="fps-value">15</span> fps</label>
+                        <input type="range" id="frame-rate" min="1" max="30" value="15" class="slider">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="exposure">Exposure</label>
+                        <input type="range" id="exposure" min="0" max="100" value="50" class="slider">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="gain">Gain</label>
+                        <input type="range" id="gain" min="0" max="100" value="50" class="slider">
+                    </div>
+                    
+                    <button id="apply-settings" class="btn btn-primary">
+                        <i class="fas fa-sync-alt"></i> Apply to Both Cameras
+                    </button>
+                </div>
+
+                <div class="card">
+                    <h2><i class="fas fa-history"></i> Recent Captures</h2>
+                    <div id="recent-files" class="file-list">
+                        <div class="file-item">No captures yet</div>
+                    </div>
+                    <button id="refresh-files" class="btn btn-secondary">
+                        <i class="fas fa-redo"></i> Refresh
+                    </button>
+                </div>
+            </div>
+
+            <!-- Center Panel - Camera Preview & Register Control -->
+            <div class="center-panel">
+                <div class="card">
+                    <h2><i class="fas fa-eye"></i> Camera Preview</h2>
+                    <div class="preview-container">
+                        <div class="preview-master">
+                            <h3>Master Camera</h3>
+                            <div class="preview-placeholder">
+                                <i class="fas fa-camera fa-3x"></i>
+                                <p>Live preview not available in RAW mode</p>
+                            </div>
+                        </div>
+                        <div class="preview-slave">
+                            <h3>Slave Camera</h3>
+                            <div class="preview-placeholder">
+                                <i class="fas fa-camera fa-3x"></i>
+                                <p>Live preview not available in RAW mode</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2><i class="fas fa-microchip"></i> Register Control</h2>
+                    
+                    <div class="register-control">
+                        <div class="bank-selector">
+                            <button class="bank-btn active" data-bank="0">DSP Registers</button>
+                            <button class="bank-btn" data-bank="1">Sensor Registers</button>
+                            <span class="current-bank">Current: DSP (0x00)</span>
+                        </div>
+                        
+                        <div class="single-register">
+                            <h3>Single Register Access</h3>
+                            <div class="input-group">
+                                <input type="text" id="reg-addr" placeholder="0xXX" pattern="0x[0-9A-Fa-f]{2}">
+                                <button id="reg-read" class="btn btn-secondary">Read</button>
+                                <input type="text" id="reg-value" placeholder="0xXX">
+                                <button id="reg-write" class="btn btn-primary">Write</button>
+                            </div>
+                            
+                            <div class="register-details">
+                                <h4>Register Details</h4>
+                                <p>Name: <span id="reg-name">-</span></p>
+                                <p>Description: <span id="reg-desc">-</span></p>
+                                <p>Current: <span id="reg-current">0x00</span></p>
+                                <p>Binary: <span id="reg-binary">00000000</span></p>
+                            </div>
+                        </div>
+                        
+                        <div class="register-map">
+                            <h3>Register Map (First 32 registers)</h3>
+                            <div class="table-container">
+                                <table id="reg-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Addr</th>
+                                            <th>Name</th>
+                                            <th>Value</th>
+                                            <th>Binary</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="reg-table-body">
+                                        <!-- Filled dynamically -->
+                                    </tbody>
+                                </table>
+                            </div>
+                            <button id="load-more-registers" class="btn btn-secondary">
+                                <i class="fas fa-arrow-down"></i> Load More
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Panel - System Info & Advanced Controls -->
+            <div class="right-panel">
+                <div class="card">
+                    <h2><i class="fas fa-info-circle"></i> System Information</h2>
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <span class="info-label">Master IP:</span>
+                            <span id="master-ip" class="info-value">192.168.4.1</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Slave IP:</span>
+                            <span id="slave-ip" class="info-value">Not connected</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">SD Card:</span>
+                            <span id="sd-status" class="info-value">Mounted</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Free Space:</span>
+                            <span id="free-space" class="info-value">0 MB</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Uptime:</span>
+                            <span id="uptime" class="info-value">00:00:00</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Last Capture:</span>
+                            <span id="last-capture" class="info-value">Never</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2><i class="fas fa-cogs"></i> Advanced Controls</h2>
+                    
+                    <div class="button-group">
+                        <button id="dump-registers" class="btn btn-secondary">
+                            <i class="fas fa-download"></i> Dump All Registers
+                        </button>
+                        <button id="reset-camera" class="btn btn-warning">
+                            <i class="fas fa-undo"></i> Reset Camera
+                        </button>
+                        <button id="factory-reset" class="btn btn-danger">
+                            <i class="fas fa-trash"></i> Factory Reset
+                        </button>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="test-pattern">Test Pattern</label>
+                        <select id="test-pattern" class="form-control">
+                            <option value="none">None</option>
+                            <option value="color-bar">Color Bar</option>
+                            <option value="random">Random Noise</option>
+                            <option value="gradient">Gradient</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="auto-sync">
+                            Auto-sync registers to slave
+                        </label>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="save-metadata">
+                            Save metadata with captures
+                        </label>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2><i class="fas fa-file-prescription"></i> Preset Profiles</h2>
+                    
+                    <div class="form-group">
+                        <label for="preset-select">Select Profile</label>
+                        <select id="preset-select" class="form-control">
+                            <option value="raw_uxga">RAW UXGA (Default)</option>
+                            <option value="yuv_svga">YUV SVGA</option>
+                            <option value="high_speed">High Speed CIF</option>
+                            <option value="low_light">Low Light Mode</option>
+                        </select>
+                    </div>
+                    
+                    <div class="button-group">
+                        <button id="load-preset" class="btn btn-primary">
+                            <i class="fas fa-folder-open"></i> Load
+                        </button>
+                        <button id="save-preset" class="btn btn-secondary">
+                            <i class="fas fa-save"></i> Save As
+                        </button>
+                        <button id="delete-preset" class="btn btn-danger">
+                            <i class="fas fa-trash"></i> Delete
+                        </button>
+                    </div>
+                    
+                    <div class="form-group">
+                        <input type="text" id="preset-name" placeholder="New profile name" class="form-control">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>Dual ESP32-CAM System v1.0 | Synchronized Imaging Platform</p>
+            <div class="footer-links">
+                <a href="#" id="refresh-status"><i class="fas fa-sync-alt"></i> Refresh Status</a>
+                <a href="#" id="view-logs"><i class="fas fa-clipboard-list"></i> View Logs</a>
+                <a href="#" id="system-reboot"><i class="fas fa-power-off"></i> Reboot</a>
+            </div>
+        </footer>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="scripts.js"></script>
+</body>
+</html>
