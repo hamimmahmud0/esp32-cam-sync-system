@@ -1,0 +1,44 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8"/>
+  <title>Registers</title>
+  <link rel="stylesheet" href="/www/app.css">
+</head>
+<body>
+  <h2>OV2640 Register Control</h2>
+
+  <div class="row">
+    <label>Bank</label>
+    <select id="bank">
+      <option value="0">DSP (0x00)</option>
+      <option value="1">SENSOR (0x01)</option>
+    </select>
+  </div>
+
+  <div class="row">
+    <input id="addr" placeholder="0x12" value="0x12"/>
+    <button onclick="readReg()">Read</button>
+    <input id="val" placeholder="0x00" value="0x00"/>
+    <input id="mask" placeholder="mask optional e.g. 0xFF"/>
+    <button onclick="writeReg()">Write</button>
+  </div>
+
+  <div class="row">
+    <button onclick="dumpAll()">Dump All</button>
+    <button onclick="writeRangeLocal()">Write Range Local</button>
+    <button onclick="writeRangeBoth()">Write Range Both</button>
+  </div>
+
+  <div class="row">
+    <input id="rangeStart" placeholder="start e.g. 0x20" value="0x20"/>
+    <textarea id="rangeValues" rows="3" cols="60"
+      placeholder="Comma values e.g. 0x12,0x34,0x56"></textarea>
+  </div>
+
+  <pre id="out"></pre>
+  <a href="/">Back</a>
+
+  <script src="/www/registers.js"></script>
+</body>
+</html>

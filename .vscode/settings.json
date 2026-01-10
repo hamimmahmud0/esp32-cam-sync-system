@@ -1,3 +1,9 @@
 {
-    "idf.currentSetup": "/home/hamim-mahmud/esp/esp-idf"
+  "idf.currentSetup": "/home/hamim-mahmud/esp/esp-idf",
+  "clangd.path": "/home/hamim-mahmud/.espressif/tools/esp-clang/esp-19.1.2_20250312/esp-clang/bin/clangd",
+  "clangd.arguments": [
+    "--background-index",
+    "--query-driver=/home/hamim-mahmud/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/bin/xtensa-esp32-elf-gcc",
+    "--compile-commands-dir=/home/hamim-mahmud/esp/esp-idf/hamim/dual_esp32cam_system/build"
+  ]
 }

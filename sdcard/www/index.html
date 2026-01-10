@@ -1,0 +1,49 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8"/>
+  <title>Dual ESP32-CAM</title>
+  <link rel="stylesheet" href="/www/app.css">
+</head>
+<body>
+  <h2>ESP32-CAM</h2>
+
+  <div>
+    <img id="view" src="/stream" style="max-width:100%;border-radius:12px"/>
+  </div>
+
+  <div class="row">
+    <label>Framesize</label>
+    <select id="framesize">
+      <option value="uxga">UXGA</option>
+      <option value="svga" selected>SVGA</option>
+      <option value="cif">CIF</option>
+    </select>
+
+    <label>Format</label>
+    <select id="pixformat">
+      <option value="jpeg" selected>JPEG</option>
+      <option value="rgb565">RGB565</option>
+      <option value="yuv422">YUV422</option>
+      <option value="gray">GRAY</option>
+    </select>
+  </div>
+
+  <div class="row">
+    <button onclick="capLocal()">Capture Local</button>
+    <button onclick="capSync()">Capture Sync (Both)</button>
+    <a href="/registers">Advanced Registers</a>
+  </div>
+
+  <div class="row">
+    <input id="presetName" placeholder="preset name e.g. raw_uxga">
+    <button onclick="presetSave()">Save Preset</button>
+    <button onclick="presetLoad()">Load Preset (Local)</button>
+    <button onclick="presetApply()">Load Preset (Both)</button>
+  </div>
+
+  <pre id="log"></pre>
+
+  <script src="/www/app.js"></script>
+</body>
+</html>

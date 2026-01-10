@@ -18,8 +18,8 @@ end
 
 # Load bootloader symbols
 set confirm off
-    add-symbol-file /home/hamim-mahmud/esp/esp-idf/hamim/dual_esp32cam_system/build/bootloader/bootloader.elf
+    add-symbol-file /home/hamim-mahmud/esp/esp-idf/hamim/dual-esp32cam-sync-ZIP/build/bootloader/bootloader.elf
 set confirm on
 
 # Load application symbols
-file /home/hamim-mahmud/esp/esp-idf/hamim/dual_esp32cam_system/build/hello_world.elf
+file /home/hamim-mahmud/esp/esp-idf/hamim/dual-esp32cam-sync-ZIP/build/dual_esp32cam_sync.elf

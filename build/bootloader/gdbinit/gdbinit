@@ -1,0 +1,2 @@
+source /home/hamim-mahmud/esp/esp-idf/hamim/dual-esp32cam-sync-ZIP/build/bootloader/gdbinit/symbols
+source /home/hamim-mahmud/esp/esp-idf/hamim/dual-esp32cam-sync-ZIP/build/bootloader/gdbinit/connect

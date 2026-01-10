@@ -1,0 +1,54 @@
+menu "Dual ESP32-CAM Sync"
+
+choice APP_ROLE
+    prompt "Device role"
+    default ROLE_MASTER
+config ROLE_MASTER
+    bool "MASTER"
+config ROLE_SLAVE
+    bool "SLAVE"
+endchoice
+
+config APP_HOSTNAME
+    string "mDNS hostname"
+    default "esp32cam-master" if ROLE_MASTER
+    default "esp32cam-slave" if ROLE_SLAVE
+
+config SLAVE_MDNS_HOST
+    string "Slave mDNS host (MASTER only, without .local)"
+    default "esp32cam-slave"
+    depends on ROLE_MASTER
+
+config TRIGGER_GPIO
+    int "Trigger GPIO (SDIO-safe recommended)"
+    default 16
+
+config SD_MOUNT_POINT
+    string "SD mount point"
+    default "/sdcard"
+
+config WWW_DIR
+    string "Web directory on SD"
+    default "/sdcard/www"
+
+config CAPTURES_DIR
+    string "Captures directory on SD"
+    default "/sdcard/captures"
+
+config REGPROFILES_DIR
+    string "Register profiles directory on SD"
+    default "/sdcard/reg_profiles"
+
+config WIFI_SSID
+    string "Wi-Fi SSID"
+    default ""
+
+config WIFI_PASS
+    string "Wi-Fi Password"
+    default ""
+
+config WIFI_MAX_RETRY
+    int "Wi-Fi max retries"
+    default 10
+
+endmenu

@@ -1,2 +1,2 @@
-source /home/hamim-mahmud/esp/esp-idf/hamim/dual_esp32cam_system/build/gdbinit/symbols
-source /home/hamim-mahmud/esp/esp-idf/hamim/dual_esp32cam_system/build/gdbinit/connect
+source /home/hamim-mahmud/esp/esp-idf/hamim/dual-esp32cam-sync-ZIP/build/gdbinit/symbols
+source /home/hamim-mahmud/esp/esp-idf/hamim/dual-esp32cam-sync-ZIP/build/gdbinit/connect
